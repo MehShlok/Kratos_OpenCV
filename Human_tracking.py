@@ -1,13 +1,13 @@
 import cv2
 import numpy as np
-import rover_control_library as rover
 import time
 
-rover_control = rover.RoverControl()
-cap = cv2.VideoCapture(0) 
+# Initialize the laptop's camera (use the appropriate camera source, e.g., 0 for built-in camera)
+cap = cv2.VideoCapture(2)
 
 # Load the pre-trained OpenCV human detection model (Haar Cascade)
-human_cascade = cv2.CascadeClassifier('haarcascade_fullbody.xml')
+# Download the XML file from: https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_fullbody.xml
+human_cascade = cv2.CascadeClassifier('/home/ubuntu/Downloads/haarcascade_fullbody.xml')
 
 def main():
     fps = 1
@@ -15,7 +15,7 @@ def main():
     while True:
         start_time = time.time()
 
-        # Capture a frame from the camera
+        # Capture a frame from the laptop's camera
         ret, frame = cap.read()
         if not ret:
             break
@@ -24,7 +24,7 @@ def main():
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # Detect humans in the frame
-        humans = human_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+        humans = human_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40))
 
         # Draw rectangles around detected humans and calculate the center of the first detected human
         for (x, y, w, h) in humans:
@@ -33,16 +33,17 @@ def main():
             human_center_y = y + h // 2
             break  # Only consider the first detected human
 
-        # Control the rover based on the detected human's position
+        # Simulate rover-like actions based on the detected human's position
         if 'human_center_x' in locals():
-            if human_center_x < frame.shape[1] // 3:
-                rover_control.turn_left()
-            elif human_center_x > 2 * frame.shape[1] // 3:
-                rover_control.turn_right()
+            print("Human Detected")
+            if human_center_x < frame.shape[1] // 2:
+                print("Turn left")
+            elif human_center_x > frame.shape[1] // 2:
+                print("Turn right")
             else:
-                rover_control.move_forward()
+                print("Move forward")
         else:
-            rover_control.stop()
+            print("Stop")
 
         # Display the frame with detected humans
         cv2.imshow("Human Detection", frame)
@@ -57,7 +58,6 @@ def main():
     # Release resources
     cap.release()
     cv2.destroyAllWindows()
-    rover_control.stop()
 
 if __name__ == '__main__':
     main()
