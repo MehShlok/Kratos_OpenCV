@@ -26,4 +26,10 @@ while True:
                 hand_landmarks,mphands.HAND_CONNECTIONS)
         
     cv2.imshow('Handtracker',image)
-    cv2.waitKey(1)
+    if cv2.waitKey(20) & 0xFF == ord('q'):
+        break
+
+# When everything done, release the capture
+cap.release()
+cv2.destroyAllWindows()
+
